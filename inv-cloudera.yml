@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  vars:
+    manager_api: "{{ c_api | default('http://172.16.2.9:7180/api/v15') }}"
+  tasks:
+    - name: "Query Cloudera API for hosts"
+      uri:
+        url: "{{ manager_api }}/hosts" 
+        method: GET
+        user: "{{ c_user | default('cloudera') }}"
+        password: "{{ c_password | default('cloudera') }}"
+        validate_certs: False
+      register: cdh_hosts
+
+    - name: "Set workflow fact with returned API items"
+      set_stats:
+        data: "{{ cdh_hosts.json }}"

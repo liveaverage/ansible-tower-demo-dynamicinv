@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  vars:
+    oc_api: "{{ c_api | default('http://172.16.2.10:8443') }}"
+    oc_token: "{{ c_token | default('')}}
+  tasks:
+    - name: "Query Openshift API for Nodes"
+      uri:
+        url: "{{ oc_api }}/" 
+        method: GET
+        user: "{{ c_user | default('cloudera') }}"
+        password: "{{ c_password | default('cloudera') }}"
+        validate_certs: False
+      register: cdh_hosts
+
+    - name: "Set workflow fact with returned API items"
+      set_stats:
+        data: "{{ cdh_hosts.json }}"
