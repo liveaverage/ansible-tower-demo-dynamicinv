@@ -1,18 +1,34 @@
 ---
+
+#
+# Best practice is to create an sa with cluster-reader permissions:
+#
+# oc login -u system:admin
+# oc project default
+# oc create sa sa-view
+# oc adm policy add-cluster-role-to-user view system:serviceaccount:default:sa-view
+# oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:default:sa-view
+# oc get secret | grep sa-view-dockercfg | tail -1 | awk '{system("oc get secret " $1 " -o json")}' | \
+#    python -c 'import sys, json; print json.load(sys.stdin)["metadata"]["annotations"]["openshift.io/token-secret.value"]' > /tmp/.token
+#
+
 - hosts: localhost
   vars:
-    oc_api: "{{ c_api | default('http://172.16.2.10:8443') }}"
-    oc_token: "{{ c_token | default('')}}
+    oc_api: "{{ c_api | default('https://172.16.2.10:8443') }}"
+    oc_token: "{{ c_token | default( lookup('file', '/tmp/.token')) }}"
   tasks:
     - name: "Query Openshift API for Nodes"
       uri:
-        url: "{{ oc_api }}/" 
+        url: "{{ oc_api }}/api/v1/nodes" 
         method: GET
-        user: "{{ c_user | default('cloudera') }}"
-        password: "{{ c_password | default('cloudera') }}"
+        headers:
+          Authorization: Bearer {{ oc_token }}
+          Accept: application/json
         validate_certs: False
-      register: cdh_hosts
+      register: ocp_hosts
+
+    - debug: var=ocp_hosts
 
     - name: "Set workflow fact with returned API items"
       set_stats:
-        data: "{{ cdh_hosts.json }}"
+        data: "{{ ocp_hosts.json }}"
