@@ -31,7 +31,6 @@
 
 - name:  Add in-memory hosts to Tower inventory
   hosts: localhost
-  connection: local
   tasks:
 
     - name: Tower Inventory Additions
