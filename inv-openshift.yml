@@ -15,7 +15,7 @@
 - hosts: localhost
   vars:
     oc_api: "{{ c_api | default('https://172.16.2.10:8443') }}"
-    oc_token: "{{ c_token | default( lookup('file', '/tmp/.token')) }}"
+    oc_token: "{{ c_token | default('') }}"
     oc_json_query: "items[*].status.addresses[?type==`InternalIP`].address"
   tasks:
     - name: "Query Openshift API for Nodes"
