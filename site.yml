@@ -1,5 +1,5 @@
 - name: Configure dynamic hosts
-  hosts: all
+  hosts: localhost
   become: true
   pre_tasks:
     - name: Parse data dictionary when defined
@@ -10,6 +10,9 @@
       with_items:
         - "{{ data.items }}"
       when: "{{ item['ipAddress'] is defined }}"
-  roles:
-    - { role: config-banner, when: "'tag_banner' in group_names" }
 
+- name: Configure banners on dynamic hosts
+  hosts: tag_banner
+  become: true
+  roles:
+    - config-banner
