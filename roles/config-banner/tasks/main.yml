@@ -5,3 +5,8 @@
   template:
     src: motd.j2
     dest: /etc/motd
+
+- name: Clear MOTD
+  shell: |
+    echo '' > /etc/motd
+  when: reset_banner is defined and reset_banner

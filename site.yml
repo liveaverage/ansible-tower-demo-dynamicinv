@@ -1,14 +1,31 @@
 - name: Configure dynamic hosts
   hosts: localhost
+  vars:
+    oc_json_query: "items[*].status.addresses[?type==`InternalIP`].address"
   tasks:
-    - name: Parse data dictionary when defined
+
+    - name: Parse data dictionary for Cloudera when defined
       add_host:
         hostname: "{{ item['ipAddress'] }}"
         groups:
           - tag_banner      
       with_items:
         - "{{ json_results['items'] }}"
-      when: item.ipAddress is defined
+      when: 
+        - json_results is defined
+        - item.ipAddress is defined
+
+    - name: Parse data dictionary for Openshift when defined
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - tag_banner
+      with_items: "{{ json_results | json_query(oc_json_query) | list }}"
+      ignore_errors: yes
+      when: 
+        - json_results is defined
+        - json_results['apiVersion']=='v1'
+        - item is defined
 
 - name: Configure banners on dynamic hosts
   hosts: tag_banner

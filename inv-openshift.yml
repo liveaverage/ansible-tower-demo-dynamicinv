@@ -16,6 +16,7 @@
   vars:
     oc_api: "{{ c_api | default('https://172.16.2.10:8443') }}"
     oc_token: "{{ c_token | default( lookup('file', '/tmp/.token')) }}"
+    oc_json_query: "items[*].status.addresses[?type==`InternalIP`].address"
   tasks:
     - name: "Query Openshift API for Nodes"
       uri:
@@ -28,8 +29,20 @@
       register: ocp_hosts
 
     - debug: var=ocp_hosts
+    - debug: var=item
+      with_items: "{{ ocp_hosts.json | json_query(oc_json_query) }}"
 
     - name: "Set workflow fact with returned API items"
       set_stats:
         data: 
           json_results: "{{ ocp_hosts.json }}"
+
+    - name: Parse data dictionary when defined
+      add_host:
+        name: "{{ item }}"
+        groups:
+          - tag_banner
+      with_items: "{{ ocp_hosts.json | json_query(oc_json_query) | list }}"
+      when: item is defined
+
+
