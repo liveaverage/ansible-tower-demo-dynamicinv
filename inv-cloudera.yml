@@ -14,4 +14,5 @@
 
     - name: "Set workflow fact with returned API items"
       set_stats:
-        data: "{{ cdh_hosts.json }}"
+        data: 
+          json_results: "{{ cdh_hosts.json }}"

@@ -31,4 +31,5 @@
 
     - name: "Set workflow fact with returned API items"
       set_stats:
-        data: "{{ ocp_hosts.json }}"
+        data: 
+          json_results: "{{ ocp_hosts.json }}"

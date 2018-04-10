@@ -7,7 +7,7 @@
         groups:
           - tag_banner      
       with_items:
-        - "{{ data.items }}"
+        - "{{ json_results.items }}"
       when: "{{ item['ipAddress'] is defined }}"
 
 - name: Configure banners on dynamic hosts
