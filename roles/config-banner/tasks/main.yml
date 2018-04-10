@@ -9,4 +9,4 @@
 - name: Clear MOTD
   shell: |
     echo '' > /etc/motd
-  when: reset_banner is defined and reset_banner
+  when: reset_banner is defined and reset_banner == 'true'
