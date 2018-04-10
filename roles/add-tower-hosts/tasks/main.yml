@@ -1,6 +1,8 @@
 ---
 # tasks file for add-tower-hosts
 
+- debug: var="{{ item }}"
+
 - name: Add host groups to tower
   uri:
     url: "https://{{ towerhost }}/api/v2/inventories/"
@@ -8,7 +10,7 @@
     user: admin
     password: "{{ towerpass }}"
     body:
-      name: "{{ hostvars[inventory_hostname].primarygroup }}"
+      name: "{{ hostvars[ item ].primarygroup }}"
       organization: 1
     body_format: json
     validate_certs: False
@@ -21,7 +23,7 @@
 
 - name: Get inventory URL
   uri:
-    url: "https://{{ towerhost }}/api/v2/inventories/?name={{ hostvars[inventory_hostname].primarygroup }}"
+    url: "https://{{ towerhost }}/api/v2/inventories/?name={{ hostvars[ item ].primarygroup }}"
     method: GET
     user: admin
     password: "{{ towerpass }}"

@@ -29,11 +29,21 @@
         - json_results['apiVersion']=='v1'
         - item is defined
 
+#    - name: Dummy host
+#      add_host:
+#        hostname: "dummy"
+#        primarygroup: "dynamic-inv-test"
+#        groups:
+#          - tag_banner
+      
+
 - name:  Add in-memory hosts to Tower inventory
   hosts: localhost
   tasks:
 
+    - debug: var=groups
+
     - name: Tower Inventory Additions
       include_role: 
         name: add-tower-hosts
-      with_items: groups.tag_banner
+      with_items: "{{ groups['tag_banner'] }}"
