@@ -16,3 +16,12 @@
       set_stats:
         data: 
           json_results: "{{ cdh_hosts.json }}"
+
+    - name: Parse data dictionary when defined
+      add_host:
+        hostname: "{{ item['ipAddress'] }}"
+        groups:
+          - tag_banner
+      with_items:
+        - "{{ cdh_hosts.json['items'] }}"
+      when: item.ipAddress is defined
