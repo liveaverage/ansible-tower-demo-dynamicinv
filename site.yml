@@ -8,7 +8,7 @@
           - tag_banner      
       with_items:
         - "{{ json_results.items }}"
-      when: item['ipAddress'] is defined
+      when: item.ipAddress is defined
 
 - name: Configure banners on dynamic hosts
   hosts: tag_banner
