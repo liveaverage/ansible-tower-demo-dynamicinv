@@ -44,7 +44,7 @@
     user: admin
     password: "{{ towerpass }}"
     body:
-      name: "{{ inventory_hostname }}"
+      name: "{{ item }}"
       inventory: "{{ response_group.json.results[0].id }}"
     body_format: json
     validate_certs: False
