@@ -1,0 +1,54 @@
+---
+# tasks file for add-tower-hosts
+
+- name: Add host groups to tower
+  uri:
+    url: "https://{{ towerhost }}/api/v2/inventories/"
+    method: POST
+    user: admin
+    password: "{{ towerpass }}"
+    body:
+      name: "{{ hostvars[inventory_hostname].primarygroup }}"
+      organization: 1
+    body_format: json
+    validate_certs: False
+    status_code:
+      - 200
+      - 201
+      - 400
+  register: response
+  changed_when: response.status == 201
+
+- name: Get inventory URL
+  uri:
+    url: "https://{{ towerhost }}/api/v2/inventories/?name={{ hostvars[inventory_hostname].primarygroup }}"
+    method: GET
+    user: admin
+    password: "{{ towerpass }}"
+    validate_certs: False
+    status_code:
+      - 200
+      - 201
+      - 400
+  register: response_group
+  changed_when: response.status == 201
+
+- debug: var=response_group
+
+- name: Add in-memory hosts to tower
+  uri:
+    url: "https://{{ towerhost }}/api/v2/hosts/"
+    method: POST
+    user: admin
+    password: "{{ towerpass }}"
+    body:
+      name: "{{ inventory_hostname }}"
+      inventory: "{{ response_group.json.results[0].id }}"
+    body_format: json
+    validate_certs: False
+    status_code:
+      - 200
+      - 201
+      - 400
+  register: response_hosts
+  changed_when: response_hosts.status == 201

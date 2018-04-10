@@ -1,0 +1,40 @@
+- name: Configure dynamic hosts
+  hosts: localhost
+  vars:
+    oc_json_query: "items[*].status.addresses[?type==`InternalIP`].address"
+  tasks:
+
+    - name: Parse data dictionary for Cloudera when defined
+      add_host:
+        hostname: "{{ item['ipAddress'] }}"
+        primarygroup: "dynamic-inv-cloudera"
+        groups:
+          - tag_banner      
+      with_items:
+        - "{{ json_results['items'] }}"
+      when: 
+        - json_results is defined
+        - item.ipAddress is defined
+
+    - name: Parse data dictionary for Openshift when defined
+      add_host:
+        name: "{{ item }}"
+        primarygroup: "dynamic-inv-openshift"
+        groups:
+          - tag_banner
+      with_items: "{{ json_results | json_query(oc_json_query) | list }}"
+      ignore_errors: yes
+      when: 
+        - json_results is defined
+        - json_results['apiVersion']=='v1'
+        - item is defined
+
+- name:  Add in-memory hosts to Tower inventory
+  hosts: localhost
+  connection: local
+  tasks:
+
+    - name: Tower Inventory Additions
+      include_role: 
+        name: add-tower-hosts
+      with_items: groups.tag_banner
